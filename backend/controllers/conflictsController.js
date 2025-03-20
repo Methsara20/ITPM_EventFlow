@@ -11,3 +11,7 @@ export const detectConflict = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+//email - eventflow87@gmail.com
+//password - 123Event25$
