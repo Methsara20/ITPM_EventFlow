@@ -1,9 +1,8 @@
 //import logo from './logo.svg';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Navbar } from './component/NavBar/Navbar';
-import {eventDashboard} from './component/AI-handler/eventDashboard';
-import {fotter} from './component/fotter/fotter';
+import { Navbar } from './components/NavBar/Navbar';
+import {fotter} from './components/footer/footer';
 
 function App() {
   return (
