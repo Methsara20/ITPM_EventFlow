@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+import Conflicts from "../model/Conflicts.js";
+
 
 const ConflictSchema = new mongoose.Schema({
   eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Insights", required: true },
@@ -7,4 +9,5 @@ const ConflictSchema = new mongoose.Schema({
   resolved: { type: Boolean, default: false },
 });
 
-module.exports = mongoose.model("Conflict", ConflictSchema);
+//module.exports = mongoose.model("Conflict", ConflictSchema);
+export default mongoose.model("Conflict", ConflictSchema);

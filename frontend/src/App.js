@@ -1,6 +1,6 @@
 //import logo from './logo.svg';
 import React from 'react';
-import './styles/conflicts.css';
+import './styles/Conflicts.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import InsightsForm from './components/EventInsights/InsightsForm';
 import InsightsList from './components/EventInsights/InsightsList';

@@ -5,7 +5,7 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-async function analyzeEventConflict(eventDetails) {
+export async function analyzeEventConflict(eventDetails) {
   const prompt = `Analyze the following event details for potential scheduling conflicts:
   ${JSON.stringify(eventDetails)}`;
   const response = await openai.createCompletion({
