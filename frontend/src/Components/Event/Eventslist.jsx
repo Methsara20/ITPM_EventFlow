@@ -16,7 +16,7 @@ const EventsList = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3000/api/events")
+      .get("http://localhost:5000/api/events")
       .then((response) => {
         setEvents(response.data);
         setLoading(false);
@@ -29,7 +29,7 @@ const EventsList = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/events/${id}`);
+      await axios.delete(`http://localhost:5000/api/events/${id}`);
       setEvents(events.filter((event) => event._id !== id));
     } catch (err) {
       alert("Error deleting event: " + err.message);

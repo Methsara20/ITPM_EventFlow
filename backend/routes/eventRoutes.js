@@ -1,66 +1,121 @@
 import express from 'express';
-import Event from '../models/Event.js'; // Make sure to add `.js` extension
+import Event from '../models/Event.js';
 
 const router = express.Router();
 
-// 📌 Create an event
+// Helper function for error handling
+const handleErrors = (res, err) => {
+  console.error(err);
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({ error: err.message });
+  }
+  return res.status(500).json({ error: 'Server error' });
+};
+
+// 📌 Create an event (updated for frontend integration)
 router.post('/', async (req, res) => {
   try {
-    const newEvent = new Event(req.body);
+    // Validate required fields
+    if (!req.body.eventType || !req.body.eventDate || !req.body.eventTime || 
+        !req.body.budget || !req.body.venue) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Create new event with combined date/time
+    const newEvent = new Event({
+      eventType: req.body.eventType,
+      eventDate: req.body.eventDate,
+      eventTime: req.body.eventTime,
+      budget: Number(req.body.budget), // Ensure number type
+      venue: req.body.venue
+    });
+
     const savedEvent = await newEvent.save();
-    res.status(201).json(savedEvent);
+    res.status(201).json({
+      ...savedEvent.toObject(),
+      message: 'Event created successfully!'
+    });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    handleErrors(res, err);
   }
 });
 
-// 📌 Get all events
+// 📌 Get all events (with sorting)
 router.get('/', async (req, res) => {
   try {
-    const events = await Event.find();
+    const events = await Event.find().sort({ createdAt: -1 }); // Newest first
     res.json(events);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    handleErrors(res, err);
   }
 });
 
-// 📌 Get an event by ID
+// 📌 Get an event by ID (with better error handling)
 router.get('/:id', async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid event ID' });
+    }
+
     const event = await Event.findById(req.params.id);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
     res.json(event);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    handleErrors(res, err);
   }
 });
 
-// 📌 Update an event
+// 📌 Update an event (enhanced validation)
 router.put('/:id', async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid event ID' });
+    }
+
+    const updates = {
+      ...req.body,
+      ...(req.body.budget && { budget: Number(req.body.budget) }) // Ensure number
+    };
+
     const updatedEvent = await Event.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updates,
       { new: true, runValidators: true }
     );
 
-    if (!updatedEvent) return res.status(404).json({ message: 'Event not found' });
+    if (!updatedEvent) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
 
-    res.json(updatedEvent);
+    res.json({
+      ...updatedEvent.toObject(),
+      message: 'Event updated successfully!'
+    });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    handleErrors(res, err);
   }
 });
 
-// 📌 Delete an event
+// 📌 Delete an event (with success message)
 router.delete('/:id', async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid event ID' });
+    }
+
     const deletedEvent = await Event.findByIdAndDelete(req.params.id);
-    if (!deletedEvent) return res.status(404).json({ message: 'Event not found' });
-    res.json({ message: 'Event deleted successfully' });
+    if (!deletedEvent) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+    res.json({ 
+      message: 'Event deleted successfully',
+      id: req.params.id
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    handleErrors(res, err);
   }
 });
 
-export default router; // ES Module export
+export default router;
