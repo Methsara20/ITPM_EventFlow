@@ -1,11 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import "./Components/intput.css";  
+import "./components/intput.css";  // Fixed path
 
-import Ted from "./Components/Event/Ted"; // Import the Teds component
-import EventsList from "./Components/Event/Eventslist"; // Import the EventsList component
-import UpdateEvent from "./Components/Event/UpdateEvent";
+import Ted from "./components/Event/Ted";
+import EventsList from "./components/Event/Eventslist"; 
+import UpdateEvent from "./components/Event/UpdateEvent";
+
 function App() {
   return (
     <Router>

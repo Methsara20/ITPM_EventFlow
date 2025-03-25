@@ -1,12 +1,10 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const cors = require('cors');
+import express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import eventRoutes from './routes/eventRoutes.js';
 
 dotenv.config();
-//Routes
-const eventRoutes = require('./routes/eventRoutes');
-
 
 const app = express();
 
@@ -16,7 +14,6 @@ app.use(cors());
 
 // Routes
 app.use('/api/events', eventRoutes);
-
 
 // Database Connection
 mongoose

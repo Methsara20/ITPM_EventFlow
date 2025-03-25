@@ -1,5 +1,5 @@
-const express = require('express');
-const Event = require('../models/Event');
+import express from 'express';
+import Event from '../models/Event.js'; // Make sure to add `.js` extension
 
 const router = express.Router();
 
@@ -38,7 +38,11 @@ router.get('/:id', async (req, res) => {
 // 📌 Update an event
 router.put('/:id', async (req, res) => {
   try {
-    const updatedEvent = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const updatedEvent = await Event.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
 
     if (!updatedEvent) return res.status(404).json({ message: 'Event not found' });
 
@@ -47,7 +51,6 @@ router.put('/:id', async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
-
 
 // 📌 Delete an event
 router.delete('/:id', async (req, res) => {
@@ -60,4 +63,4 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router; // ES Module export

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const EventSchema = new mongoose.Schema({
   eventType: { type: String, required: true },
@@ -7,4 +7,6 @@ const EventSchema = new mongoose.Schema({
   venue: { type: String, required: true }
 });
 
-module.exports = mongoose.model('Event', EventSchema);
+// Export as ES Module
+const Event = mongoose.model('Event', EventSchema);
+export default Event;
