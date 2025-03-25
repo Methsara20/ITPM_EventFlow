@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-import Conflicts from "../model/Conflicts.js";
+//import Conflicts from "../model/Conflicts.js";
 
 
 const ConflictSchema = new mongoose.Schema({

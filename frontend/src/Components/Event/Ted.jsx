@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { 
   EventTypeOptions, 
   EventBudgetOptions,
@@ -11,36 +11,36 @@ import "react-toastify/dist/ReactToastify.css";
 import { generateContent } from "../../service/AIModel";
 
 const CreateEvent = () => {
+  const location = useLocation();
+  const [selectedVenue, setSelectedVenue] = useState(location.state?.selectedVenue || null);
   const [formData, setFormData] = useState({
     eventType: "",
     eventDate: "",
     eventTime: "",
-    budget: "",
-    venue: ""
+    budget: ""
   });
   
-  const [selectedVenue, setSelectedVenue] = useState(null);
-  const [searchResults, setSearchResults] = useState([]);
-  const [aiPlan, setAiPlan] = useState(null);
+  const [aiPlan, setAiPlan] = useState({
+    vendorRecommendations: {},
+    eventTimeline: [],
+    checklist: []
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const [isSavingPlan, setIsSavingPlan] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!selectedVenue) {
+      navigate("/selectevent");
+    }
+  }, [selectedVenue, navigate]);
 
   const handleInputChange = (name, value) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-  };
-
-  const handleVenueSearch = (query) => {
-    // Mock search implementation
-    const mockResults = [
-      { id: 1, display_name: `${query} Convention Center` },
-      { id: 2, display_name: `${query} Hotel Ballroom` },
-      { id: 3, display_name: `${query} Garden Venue` }
-    ];
-    setSearchResults(mockResults);
   };
 
   const handleSubmit = async (e) => {
@@ -55,12 +55,17 @@ const CreateEvent = () => {
         },
         body: JSON.stringify({
           ...formData,
+          venue: selectedVenue.display_name,
+          venuePhoto: selectedVenue.photo,
+          venueLocation: {
+            lat: selectedVenue.lat,
+            lon: selectedVenue.lon
+          },
           budget: Number(formData.budget)
         })
       });
 
       const data = await response.json();
-
       if (!response.ok) throw new Error(data.error || "Failed to create event");
 
       toast.success("Event created successfully!");
@@ -73,8 +78,8 @@ const CreateEvent = () => {
   };
 
   const generateAIPlan = async () => {
-    if (!formData.eventType || !formData.venue) {
-      toast.error("Please select event type and venue first");
+    if (!formData.eventType) {
+      toast.error("Please select event type first");
       return;
     }
   
@@ -84,45 +89,104 @@ const CreateEvent = () => {
         .replace(/{eventType}/g, formData.eventType)
         .replace(/{eventDate}/g, formData.eventDate)
         .replace(/{eventTime}/g, formData.eventTime)
-        .replace(/{venue}/g, formData.venue)
+        .replace(/{venue}/g, selectedVenue.display_name)
         .replace(/{budget}/g, formData.budget);
   
       const response = await generateContent(prompt);
       
-      // First check if response is already an object
       let plan = typeof response === 'string' ? JSON.parse(response) : response;
       
-      // Fallback if parsing fails
-      if (!plan || typeof plan !== 'object') {
-        console.warn("Unexpected API response format:", response);
-        plan = {
-          eventOverview: {
-            type: formData.eventType,
-            date: formData.eventDate,
-            venue: formData.venue,
-            budget: formData.budget
-          },
-          vendors: [],
-          timeline: [],
-          checklist: []
-        };
-      }
+      const safePlan = {
+        vendorRecommendations: plan.vendorRecommendations || {},
+        eventTimeline: plan.eventTimeline || [],
+        checklist: plan.checklist || [],
+        ...plan
+      };
   
-      setAiPlan(plan);
+      setAiPlan(safePlan);
       toast.success("AI plan generated successfully!");
     } catch (error) {
       console.error("Full generation error:", error);
       toast.error(`AI generation failed: ${error.message}`);
+      setAiPlan({
+        vendorRecommendations: {},
+        eventTimeline: [],
+        checklist: []
+      });
     } finally {
       setIsGeneratingPlan(false);
     }
   };
+
+  const handleSavePlan = async () => {
+    if (!aiPlan || Object.keys(aiPlan.vendorRecommendations).length === 0) {
+      toast.error("Please generate a plan first");
+      return;
+    }
+
+    setIsSavingPlan(true);
+    try {
+      const response = await fetch('http://localhost:5000/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          venue: selectedVenue.display_name,
+          venuePhoto: selectedVenue.photo,
+          venueLocation: {
+            lat: selectedVenue.lat,
+            lon: selectedVenue.lon
+          },
+          budget: Number(formData.budget),
+          aiPlan: aiPlan
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to save plan");
+
+      toast.success("Event plan saved successfully!");
+      navigate(`/events/${data._id}`);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setIsSavingPlan(false);
+    }
+  };
+
+  if (!selectedVenue) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto p-4 max-w-4xl">
       <h1 className="text-3xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600">
         Create Your Event
       </h1>
+      
+      <div className="mb-8 p-4 border rounded-lg bg-gray-50 shadow-sm">
+        <div className="flex justify-between items-start">
+          <div className="flex items-center gap-4">
+            <img 
+              src={selectedVenue.photo} 
+              alt={selectedVenue.display_name}
+              className="w-20 h-20 object-cover rounded"
+            />
+            <div>
+              <h3 className="font-bold text-lg">Selected Venue</h3>
+              <p className="font-medium">{selectedVenue.display_name}</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => navigate("/selectevent")}
+            className="text-blue-500 hover:text-blue-700 font-medium"
+          >
+            Change venue
+          </button>
+        </div>
+      </div>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Event Type Selection */}
@@ -209,44 +273,10 @@ const CreateEvent = () => {
           </div>
         </div>
 
-        {/* Venue Selection */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Venue</label>
-          <input
-            type="text"
-            className="w-full p-3 border rounded-lg mb-2"
-            value={formData.venue}
-            onChange={(e) => {
-              handleInputChange("venue", e.target.value);
-              handleVenueSearch(e.target.value);
-            }}
-            placeholder="Search for venues..."
-            required
-          />
-          
-          {searchResults.length > 0 && (
-            <div className="border rounded-lg overflow-hidden">
-              {searchResults.map(venue => (
-                <div
-                  key={venue.id}
-                  className="p-3 border-b hover:bg-gray-50 cursor-pointer"
-                  onClick={() => {
-                    handleInputChange("venue", venue.display_name);
-                    setSelectedVenue(venue);
-                    setSearchResults([]);
-                  }}
-                >
-                  {venue.display_name}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col md:flex-row gap-4 pt-4">
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !formData.eventType}
             className="flex-1 py-3 px-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:opacity-90 transition-all disabled:opacity-70"
           >
             {isSubmitting ? (
@@ -262,7 +292,7 @@ const CreateEvent = () => {
           <button
             type="button"
             onClick={generateAIPlan}
-            disabled={isGeneratingPlan}
+            disabled={isGeneratingPlan || !formData.eventType}
             className="flex-1 py-3 px-4 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg hover:opacity-90 transition-all disabled:opacity-70"
           >
             {isGeneratingPlan ? (
@@ -278,9 +308,25 @@ const CreateEvent = () => {
       </form>
 
       {/* AI Plan Display */}
-      {aiPlan && (
+      {aiPlan && Object.keys(aiPlan.vendorRecommendations).length > 0 && (
         <div className="mt-8 border rounded-lg p-6 bg-white shadow-lg">
-          <h2 className="text-2xl font-bold mb-4">AI-Generated Event Plan</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold">AI-Generated Event Plan</h2>
+            <button
+              onClick={handleSavePlan}
+              disabled={isSavingPlan}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-70"
+            >
+              {isSavingPlan ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  </svg>
+                  Saving...
+                </span>
+              ) : "Save This Plan"}
+            </button>
+          </div>
           
           {/* Vendor Recommendations */}
           <div className="mb-6">
