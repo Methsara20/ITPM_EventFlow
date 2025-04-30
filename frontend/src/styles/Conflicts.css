@@ -1,0 +1,40 @@
+#appContainer {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+#formTitle, #listTitle, #detectorTitle {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+#insightsForm input, #eventIdInput {
+  display: block;
+  margin-bottom: 10px;
+  padding: 10px;
+  width: 100%;
+}
+
+#submitButton, #checkButton {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#insightsList ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+#insightItem {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+#conflictDetails {
+  margin-top: 10px;
+  color: red;
+}
