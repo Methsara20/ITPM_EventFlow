@@ -1,7 +1,9 @@
 import express from 'express';
 import Event from '../models/Event.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
+
 
 // Helper function for error handling
 const handleErrors = (res, err) => {

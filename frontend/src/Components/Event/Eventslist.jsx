@@ -4,7 +4,8 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { IoSearch } from "react-icons/io5";
+import { Navbar } from "../NavBar/Navbar";
+import { IoSearch, IoArrowBack } from "react-icons/io5";
 import { FiPrinter } from "react-icons/fi";
 
 const EventsList = () => {
@@ -40,70 +41,59 @@ const EventsList = () => {
     navigate(`/update-event/${id}`);
   };
 
+  const handleBack = () => {
+    navigate("/"); // This will take the user back to the previous page
+  };
+
   //Report genaration
-const generateReport = () => {
-  if (!events || events.length === 0) {
-    alert("No data available to generate the report.");
-    return;
-  }
+  const generateReport = () => {
+    if (!events || events.length === 0) {
+      alert("No data available to generate the report.");
+      return;
+    }
 
-  // Use filteredEvents instead of all events
-  const filteredEvents = events.filter((event) =>
-    event.eventType.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    const filteredEvents = events.filter((event) =>
+      event.eventType.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-  if (filteredEvents.length === 0) {
-    alert("No events found matching the search term.");
-    return;
-  }
+    if (filteredEvents.length === 0) {
+      alert("No events found matching the search term.");
+      return;
+    }
 
-  const doc = new jsPDF();
+    const doc = new jsPDF();
 
-  // Set title
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  
-  // Calculate the width of the text
-const title = "EventFlow Report";
-const titleWidth = doc.getTextWidth(title);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    
+    const title = "EventFlow Report";
+    const titleWidth = doc.getTextWidth(title);
+    const x = (doc.internal.pageSize.width - titleWidth) / 2;
+    const y = 20;
+    doc.text(title, x, y);
 
-// Calculate the x position to center the text
-const x = (doc.internal.pageSize.width - titleWidth) / 2;
+    const tableHeaders = [["Event Type", "Venue", "Budget", "Event Date"]];
 
-// Set y position (you can adjust it to your preference)
-const y = 20;
+    const tableData = filteredEvents.map(event => [
+      event.eventType,
+      event.venue,
+      `$${event.budget.toFixed(2)}`,
+      new Date(event.eventDate).toLocaleDateString()
+    ]);
 
-// Add centered title
-doc.text(title, x, y);
+    autoTable(doc, {
+      startY: 30,
+      head: tableHeaders,
+      body: tableData,
+      theme: "grid",
+      styles: { fontSize: 12, cellPadding: 5 },
+      headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [240, 240, 240] }
+    });
 
-  // Define table headers
-  const tableHeaders = [["Event Type", "Venue", "Budget", "Event Date"]];
+    doc.save("Event_Report.pdf");
+  };
 
-  // Define table data for filtered events
-  const tableData = filteredEvents.map(event => [
-    event.eventType,
-    event.venue,
-    `$${event.budget.toFixed(2)}`, // Ensure budget is formatted correctly
-    new Date(event.eventDate).toLocaleDateString() // Format date properly
-  ]);
-
-  // Add table using autoTable
-  autoTable(doc, {
-    startY: 30,
-    head: tableHeaders,
-    body: tableData,
-    theme: "grid",
-    styles: { fontSize: 12, cellPadding: 5 },
-    headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: "bold" },
-    alternateRowStyles: { fillColor: [240, 240, 240] }
-  });
-
-  // Save PDF
-  doc.save("Event_Report.pdf");
-};
-
-
-  //search
   const filteredEvents = events.filter((event) =>
     event.eventType.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -114,7 +104,15 @@ doc.text(title, x, y);
   return (
     <div className="container mt-3">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">Events List</h2>
+        <div className="d-flex align-items-center">
+          <button 
+            onClick={handleBack} 
+            className="btn btn-outline-secondary me-3"
+          >
+            <IoArrowBack className="me-1" /> Back To Home Page
+          </button>
+          <h2 class="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">Events List</h2>
+        </div>
         <div className="input-group w-25">
           <span className="input-group-text">
             <IoSearch />
