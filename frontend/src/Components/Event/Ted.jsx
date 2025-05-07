@@ -165,6 +165,14 @@ const CreateEvent = () => {
       <h1 className="text-3xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600">
         Create Your Event
       </h1>
+
+      {/* Back Button */}
+      <button 
+        onClick={() => navigate("/")} 
+        className="text-blue-500 hover:text-blue-700 font-medium mb-6"
+      >
+        Back to Home
+      </button>
       
       <div className="mb-8 p-4 border rounded-lg bg-gray-50 shadow-sm">
         <div className="flex justify-between items-start">
