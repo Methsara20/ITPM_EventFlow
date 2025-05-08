@@ -9,6 +9,8 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { generateContent } from "../../service/AIModel";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const CreateEvent = () => {
   const location = useLocation();
@@ -148,12 +150,80 @@ const CreateEvent = () => {
       if (!response.ok) throw new Error(data.error || "Failed to save plan");
 
       toast.success("Event plan saved successfully!");
-      navigate(`/events/${data._id}`);
+      navigate(`/events`);
     } catch (error) {
       toast.error(error.message);
     } finally {
       setIsSavingPlan(false);
     }
+  };
+
+  const downloadPlanAsPDF = () => {
+    const doc = new jsPDF();
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text('AI-Generated Event Plan', 14, 18);
+    let y = 28;
+    doc.setFontSize(12);
+    doc.text(`Event: ${formData.eventType}`, 14, y);
+    doc.text(`Date: ${formData.eventDate}`, 14, y + 8);
+    doc.text(`Time: ${formData.eventTime}`, 14, y + 16);
+    doc.text(`Venue: ${selectedVenue?.display_name || ''}`, 14, y + 24);
+    doc.text(`Budget: $${formData.budget}`, 14, y + 32);
+    y += 42;
+    // Vendor Recommendations
+    if (aiPlan.vendorRecommendations && Object.keys(aiPlan.vendorRecommendations).length > 0) {
+      doc.setFontSize(14);
+      doc.text('Vendor Recommendations', 14, y);
+      y += 6;
+      Object.entries(aiPlan.vendorRecommendations).forEach(([category, vendors]) => {
+        doc.setFontSize(12);
+        doc.text(`- ${category}:`, 16, y);
+        y += 6;
+        vendors.slice(0, 3).forEach((vendor) => {
+          doc.text(`  • ${vendor.companyName} (${vendor.priceRange})`, 18, y);
+          y += 6;
+        });
+      });
+      y += 4;
+    }
+    // Event Timeline
+    if (aiPlan.eventTimeline && aiPlan.eventTimeline.length > 0) {
+      doc.setFontSize(14);
+      doc.text('Event Timeline', 14, y);
+      y += 4;
+      autoTable(doc, {
+        startY: y + 2,
+        head: [['Time', 'Activity', 'Responsible', 'Resources']],
+        body: aiPlan.eventTimeline.map(item => [
+          item.time,
+          item.activity,
+          item.responsibleParty,
+          (item.resourcesNeeded || []).join(', ')
+        ]),
+        theme: 'grid',
+        styles: { fontSize: 10 },
+        headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+        margin: { left: 14, right: 14 }
+      });
+      y = doc.lastAutoTable.finalY + 6;
+    }
+    // Checklist
+    if (aiPlan.checklist && aiPlan.checklist.length > 0) {
+      doc.setFontSize(14);
+      doc.text('Checklist', 14, y);
+      y += 4;
+      aiPlan.checklist.forEach(category => {
+        doc.setFontSize(12);
+        doc.text(`- ${category.category}:`, 16, y);
+        y += 6;
+        category.items.slice(0, 5).forEach(item => {
+          doc.text(`  • ${item.name}`, 18, y);
+          y += 6;
+        });
+      });
+    }
+    doc.save(`Event_Plan_${formData.eventType}.pdf`);
   };
 
   if (!selectedVenue) {
@@ -320,20 +390,28 @@ const CreateEvent = () => {
         <div className="mt-8 border rounded-lg p-6 bg-white shadow-lg">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">AI-Generated Event Plan</h2>
-            <button
-              onClick={handleSavePlan}
-              disabled={isSavingPlan}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-70"
-            >
-              {isSavingPlan ? (
-                <span className="flex items-center gap-2">
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  </svg>
-                  Saving...
-                </span>
-              ) : "Save This Plan"}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleSavePlan}
+                disabled={isSavingPlan}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-70"
+              >
+                {isSavingPlan ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    </svg>
+                    Saving...
+                  </span>
+                ) : "Save This Plan"}
+              </button>
+              <button
+                onClick={downloadPlanAsPDF}
+                className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700"
+              >
+                Download Plan as PDF
+              </button>
+            </div>
           </div>
           
           {/* Vendor Recommendations */}

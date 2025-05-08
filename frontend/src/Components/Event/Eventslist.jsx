@@ -41,6 +41,11 @@ const EventsList = () => {
     navigate(`/update-event/${id}`);
   };
 
+  // New handler for viewing event plan
+  const handleViewPlan = (id) => {
+    navigate(`/event-plan/${id}`);
+  };
+
   const handleBack = () => {
     navigate("/"); // This will take the user back to the previous page
   };
@@ -149,9 +154,15 @@ const EventsList = () => {
               </button>
               <button
                 onClick={() => handleDelete(event._id)}
-                className="btn btn-danger"
+                className="btn btn-danger me-2"
               >
                 Delete
+              </button>
+              <button
+                onClick={() => navigate(`/event-plan/${event._id}`)}
+                className="btn btn-info"
+              >
+                View Plan
               </button>
             </div>
           </div>
