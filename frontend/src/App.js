@@ -9,6 +9,7 @@ import EventsList from "../src/Components/Event/Eventslist";
 import UpdateEvent from "../src/Components/Event/UpdateEvent";
 import Login from "../src/Components/Login";
 import ProtectedRoute from "../src/Components/ProtectedRoute";
+import EventPlan from "./Components/Event/EventPlan";
 
 function App() {
   return (
@@ -42,6 +43,14 @@ function App() {
               <UpdateEvent />
             </ProtectedRoute>
           } />
+          <Route
+            path="/event-plan/:id"
+            element={
+              <ProtectedRoute>
+                <EventPlan />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </Router>

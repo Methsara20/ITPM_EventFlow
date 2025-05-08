@@ -151,7 +151,7 @@ function Home() {
               their most important occasions.
             </p>
             <Link
-              to="/signup"
+              to="/selectevent"
               className="btn btn-light btn-lg px-5 py-3 fs-4 fw-bold"
             >
               Get Started Free
