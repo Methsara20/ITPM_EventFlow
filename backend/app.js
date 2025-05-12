@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import eventRoutes from './routes/eventRoutes.js';
-
+import vendorRoutes from './routes/vendorRoutes.js';
 dotenv.config();
 
 const app = express();
@@ -14,7 +14,7 @@ app.use(cors());
 
 // Routes
 app.use('/api/events', eventRoutes);
-
+app.use('/api/vendors', vendorRoutes);
 // Database Connection
 mongoose
   .connect(process.env.MONGODB_URI)

@@ -11,6 +11,9 @@ import Login from "../src/Components/Login";
 import ProtectedRoute from "../src/Components/ProtectedRoute";
 import EventPlan from "./Components/Event/EventPlan";
 
+import Vendor from "./Components/vendor/vendor"; // Corrected import name
+import VendorsList from "./Components/vendor/VendorList"; // Import the VendorsList component
+import UpdateVendor from "./Components/vendor/updateVendor"; // Adjust the path if needed
 function App() {
   return (
     <Router>
@@ -43,18 +46,33 @@ function App() {
               <UpdateEvent />
             </ProtectedRoute>
           } />
-          <Route
-            path="/event-plan/:id"
-            element={
-              <ProtectedRoute>
-                <EventPlan />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/event-plan/:id" element={
+            <ProtectedRoute>
+              <EventPlan />
+            </ProtectedRoute>
+          } />
+          
+          {/* ✅ Vendor Routes */}
+          <Route path="/vendor" element={
+            <ProtectedRoute>
+              <Vendor />
+            </ProtectedRoute>
+          } />
+          <Route path="/vendors" element={
+            <ProtectedRoute>
+              <VendorsList />
+            </ProtectedRoute>
+          } />
+          <Route path="/update-vendor/:id" element={
+            <ProtectedRoute>
+              <UpdateVendor />
+            </ProtectedRoute>
+          } />
         </Routes>
       </div>
     </Router>
   );
 }
+
 
 export default App;
