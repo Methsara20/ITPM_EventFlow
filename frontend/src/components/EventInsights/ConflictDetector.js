@@ -7,7 +7,7 @@ function ConflictDetector() {
 
   const handleConflictCheck = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/conflicts/detect', { eventId });
+      const response = await axios.post('http://localhost:5001/api/conflicts/detect', { eventId });
       setConflictDetails(response.data.details);
     } catch (error) {
       console.error(error);
