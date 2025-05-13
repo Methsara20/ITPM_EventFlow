@@ -10,6 +10,9 @@ import UpdateEvent from "../src/Components/Event/UpdateEvent";
 import Login from "../src/Components/Login";
 import ProtectedRoute from "../src/Components/ProtectedRoute";
 import EventPlan from "./Components/Event/EventPlan";
+import AddBudget from "./Components/Budget/AddBudget";
+import Budget from "./Components/Budget/Budget";
+import UpdateBudget from "./Components/Budget/UpdateBudget";
 
 function App() {
   return (
@@ -49,8 +52,39 @@ function App() {
               <ProtectedRoute>
                 <EventPlan />
               </ProtectedRoute>
-            }
-          />
+            }/>
+            <Route
+              path="/budget"
+              element={
+                <ProtectedRoute>
+                <Budget />
+               </ProtectedRoute>
+  }
+              />
+              <Route
+                path="/addbudget"
+                element={
+                  <ProtectedRoute>
+                    <AddBudget />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/addbudget/:id"
+                element={
+                  <ProtectedRoute>
+                    <AddBudget />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/update-budget/:id"
+                element={
+                  <ProtectedRoute>
+                    <UpdateBudget />
+                  </ProtectedRoute>
+                }
+              />
         </Routes>
       </div>
     </Router>
