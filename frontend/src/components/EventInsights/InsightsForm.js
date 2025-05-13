@@ -18,7 +18,7 @@ function InsightsForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/insights/add', formData);
+      const response = await axios.post('http://localhost:5001/api/insights/add', formData);
       alert('Event Insight Added Successfully!');
       console.log(response.data);
     } catch (error) {

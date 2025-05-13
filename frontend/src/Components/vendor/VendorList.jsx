@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import jsPDF from "jspdf";
-import { FiPrinter } from 'react-icons/fi';
+import { FiPrinter, FiPlus, FiArrowLeft, FiHome } from 'react-icons/fi';
 import autoTable from "jspdf-autotable";
 import { IoSearch } from "react-icons/io5";
 import { User, Phone, Mail, Package, CreditCard, DollarSign, MapPin } from "lucide-react";
@@ -38,7 +38,7 @@ const VendorList = () => {
   useEffect(() => {
     const fetchVendors = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/vendors");
+        const response = await axios.get("http://localhost:5001/api/vendors");
         const data = response.data || [];
         
         const normalized = data.map((vendor) => ({
@@ -64,7 +64,7 @@ const VendorList = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this vendor?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/vendors/${id}`);
+        await axios.delete(`http://localhost:5001/api/vendors/${id}`);
         setVendors((prev) => prev.filter((v) => v._id !== id));
       } catch (err) {
         alert("Error deleting vendor: " + err.message);
@@ -74,6 +74,14 @@ const VendorList = () => {
 
   const handleUpdate = (id) => {
     navigate(`/update-vendor/${id}`);
+  };
+
+  const handleCreateNew = () => {
+    navigate("/vendor");
+  };
+
+  const handleGoBack = () => {
+    navigate(-1); // Go back to previous page
   };
 
   const generateReport = async () => {
@@ -252,9 +260,29 @@ const VendorList = () => {
     <div className="h-screen w-full flex flex-col bg-gray-50">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 flex items-center justify-between flex-wrap sticky top-0 z-10">
-        <div>
-          <h2 className="text-2xl font-bold text-white">Registered Vendors</h2>
-          <p className="text-blue-100">Manage your vendor network efficiently</p>
+        <div className="flex items-center">
+          <div className="flex items-center space-x-2">
+            <Tooltip title="Go to home" arrow>
+              <button 
+                onClick={() => navigate("/")}
+                className="p-1 rounded-full hover:bg-blue-500 transition-colors"
+              >
+                <FiHome className="h-5 w-5 text-white" />
+              </button>
+            </Tooltip>
+            <Tooltip title="Go back" arrow>
+              <button 
+                onClick={handleGoBack}
+                className="p-1 rounded-full hover:bg-blue-500 transition-colors"
+              >
+                <FiArrowLeft className="h-5 w-5 text-white" />
+              </button>
+            </Tooltip>
+          </div>
+          <div className="ml-4">
+            <h2 className="text-2xl font-bold text-white">Registered Vendors</h2>
+            <p className="text-blue-100">Manage your vendor network efficiently</p>
+          </div>
         </div>
         <div className="mt-2 sm:mt-0 flex gap-3">
           <div className="relative">
@@ -269,6 +297,14 @@ const VendorList = () => {
               className="pl-10 w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
+          <Tooltip title="Create new vendor" arrow>
+            <button
+              onClick={handleCreateNew}
+              className="flex items-center gap-2 bg-white hover:bg-blue-50 text-blue-600 font-semibold px-4 py-2 rounded-lg shadow transition"
+            >
+              <FiPlus className="h-5 w-5" /> New
+            </button>
+          </Tooltip>
           <Tooltip title="Generate PDF report of all vendors" arrow>
             <button
               onClick={generateReport}
@@ -285,7 +321,7 @@ const VendorList = () => {
                 </>
               ) : (
                 <>
-                  <FiPrinter className="h-5 w-5" /> Generate Report
+                  <FiPrinter className="h-5 w-5" /> Report
                 </>
               )}
             </button>

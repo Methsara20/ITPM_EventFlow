@@ -30,7 +30,7 @@ const UpdateEvent = () => {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/events/${id}`);
+        const response = await axios.get(`http://localhost:5001/api/events/${id}`);
         setEventData(response.data);
         setLoading(false);
       } catch (err) {
@@ -92,7 +92,7 @@ const UpdateEvent = () => {
     if (!validateForm()) return;
     try {
       setLoading(true);
-      await axios.put(`http://localhost:5000/api/events/${id}`, eventData);
+      await axios.put(`http://localhost:5001/api/events/${id}`, eventData);
       setMessage("Event updated successfully!");
       setTimeout(() => navigate("/events"), 1500);
     } catch (err) {

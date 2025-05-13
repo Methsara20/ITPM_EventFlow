@@ -24,7 +24,7 @@ const EventPlan = () => {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/events/${id}`);
+        const response = await axios.get(`http://localhost:5001/api/events/${id}`);
         setEvent(response.data);
         setLoading(false);
       } catch (err) {

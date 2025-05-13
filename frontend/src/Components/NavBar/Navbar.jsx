@@ -30,13 +30,13 @@ export const Navbar = () => {
             </a>
           </li>
           <li className="nav-item">
-            <a className="btn btn-outline-light mx-1" href="#">
-              Analytics
+            <a className="btn btn-outline-light mx-1" href="/budget">
+              Budget
             </a>
           </li>
           <li className="nav-item">
-            <a className="btn btn-outline-light mx-1" href="#">
-              Settings
+            <a className="btn btn-outline-light mx-1" href="/vendors">
+              Vendors
             </a>
           </li>
         </ul>

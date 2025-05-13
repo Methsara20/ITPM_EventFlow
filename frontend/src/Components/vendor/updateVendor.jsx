@@ -30,7 +30,7 @@ const UpdateVendor = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/vendors/${id}`)
+    axios.get(`http://localhost:5001/api/vendors/${id}`)
       .then((res) => {
         const data = res.data;
         setVendorData({
@@ -123,7 +123,7 @@ const UpdateVendor = () => {
     if (!validateForm()) return;
 
     try {
-      await axios.put(`http://localhost:5000/api/vendors/${id}`, vendorData);
+      await axios.put(`http://localhost:5001/api/vendors/${id}`, vendorData);
       setMessage("✅ Vendor updated successfully!");
       navigate("/vendors");
     } catch (error) {

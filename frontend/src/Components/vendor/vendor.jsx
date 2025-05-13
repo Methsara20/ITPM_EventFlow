@@ -81,7 +81,7 @@ const Vendor = () => {
     if (!validateForm()) return;
 
     try {
-      const response = await fetch('http://localhost:5000/api/vendors', {
+      const response = await fetch('http://localhost:5001/api/vendors', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(vendorData),
