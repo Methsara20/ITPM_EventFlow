@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import eventRoutes from './routes/eventRoutes.js';
+import router from './route/BudgetRoute.js';
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cors());
+app.use("/budgets", router);
 
 // Routes
 app.use('/api/events', eventRoutes);
@@ -26,3 +28,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
